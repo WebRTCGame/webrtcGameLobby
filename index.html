@@ -17,10 +17,11 @@
             /* Chat */
             #chat { display: none; height: 100%; }
             #main { width: 80%; height: 100%; float: left; }
-            #messages { height: 90%; overflow-y: scroll; background-color: #eee; }
-            #message-form { height: 10%; }
+            #messages { height: 80%; width: 80%; overflow-y: scroll; background-color: #eee; }
+            #message-form { height: 10%; width: 80%; }
             #message-input { width: 100%; height: 100%; padding: 0 1em; border: none; outline: none; }
             #users { width: 20%; height: 100%; float: left; background-color: #ddd; }
+            #users.li {background-color: #eee;}
             .sender { font-weight: bold; }
             .system-message { font-style: italic; }
 
@@ -28,7 +29,7 @@
     </head>
 
     <body>
-
+<script src="handlebars.js"></script>
         <form id="join-form">
             <label for="nick-input">Choose a nickname:</label><br />
             <input id="nick-input" />
@@ -44,9 +45,17 @@
             </div>
             <ul id="users"></ul>
         </div>
+<div id="hadletest">
+    
+</div>
+
 
         <script id="userTemplate" type="text/x-jquery-tmpl">
-            <li id="user-${user}">${user}</li>
+       // console.log(${user});
+            <li id="user-${user}">${user.nick}</li>
+            
+            <input type="button" name="host" value="Hosting: ${user.hosting}" id="button-${user}" onClick='minusClick(${user.nick});'>-</button>
+
         </script>
 
         <script id="chatMessageTemplate" type="text/x-jquery-tmpl">
@@ -60,9 +69,42 @@
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
         <script src="http://ajax.microsoft.com/ajax/jquery.templates/beta1/jquery.tmpl.min.js"></script>
         <script src="/socket.io/socket.io.js"></script>
+       
+       
+       <script id="header" type="text/x-handlebars-template">
+       
+       {{#each this}}
+       
+ <div> {{ headerTitle }} </div>
+Today is {{weekDay}}
+{{/each}}
+</script>
+
+ <script id="aaa" type="text/x-handlebars-template">
+       <li class="system-message">{{ message }}</li>
+</script>
+
         <script>
+var theUsers;
+function minusClick(id){
+    //alert(id.nick.toString());
+    console.log(id);
+    };
+    
+var theData = [{headerTitle:"a", weekDay:"aa"},{headerTitle:"b", weekDay:"bb"},{headerTitle:"c", weekDay:"cc"}];
+var theTemplateScript = $("#header").html();
+var theTemplate = Handlebars.compile (theTemplateScript);
+
+var t1 = $("#aaa").html();
+console.log(t1);
+var t2 = Handlebars.compile (t1);
 
             $(document).ready(function() {
+                
+
+$(document.body).append (theTemplate (theData));
+
+
 
                 // Give focus to the nickname input when the page loads
                 $("#nick-input").focus();
@@ -84,7 +126,8 @@
 
                         // Send a request to join the chat-room
                         socket.emit("join", nick, function(successful, users) {
-                            if (successful) {
+                           
+                           if (successful) {
 
                                 // Hide the join form and show the main chat interface
                                 $("#join-form").hide();
@@ -92,10 +135,16 @@
 
                                 // Display a welcome message
                                 var message = "Welcome, " + nick;
-                                $("#systemMessageTemplate").tmpl({message: message}).appendTo("#messages");
-
+                                var messagedata = {message:message};
+                                //$("#systemMessageTemplate").tmpl({message: message}).appendTo("#messages");
+                                $("#messages").append("--");
+                                $("#messages").append (t2 (messagedata));
+                                $("#messages").append("--");
                                 // Display the list of connected users on the page
+                                console.log(JSON.stringify(users));
+                                theUsers = users;
                                 $.each(users, function(i, user) {
+                                    console.log(JSON.stringify(user));
                                     $("#userTemplate").tmpl({user: user}).appendTo("#users");
                                 });
 
@@ -139,12 +188,12 @@
                                     --------------------
                                 */
                                 socket.on("user-joined", function(user) {
-
+console.log(JSON.stringify(user));
                                     // Add to the on-page list of users
                                     $("#userTemplate").tmpl({user: user}).appendTo("#users");
 
                                     // Display a message in the main chat stream
-                                    var message = user + " joined";
+                                    var message = user.nick + " joined";
                                     $("#systemMessageTemplate").tmpl({message: message}).appendTo("#messages");
 
                                     // Auto-scroll the message pane
@@ -160,17 +209,20 @@
                                 socket.on("user-left", function(user) {
 
                                     // Remove from the on-page list of users
-                                    $("#user-" + user).remove();
+                                    $("#user-" + user.nick).remove();
 
                                     // Display a message in the main chat stream
-                                    var message = user + " left";
+                                    var message = user.nick + " left";
                                     $("#systemMessageTemplate").tmpl({message: message}).appendTo("#messages");
 
                                     // Auto-scroll the message pane
                                     $("#messages").scrollTop($("#messages").prop("scrollHeight") - $("#messages").height());
 
                                 });
-
+                                socket.on("updateusers",function(listofusers){
+                                    theUsers = listofusers;
+                                    console.log(JSON.stringify(theUsers));
+                                });
 
                             // If the request to join was rejected, show an error message
                             } else {
@@ -182,5 +234,8 @@
                 
             });
         </script>
+        <script src="/js/test.js"></script>
+        <script src="test.js"></script>
+        
     </body>
 </html>
