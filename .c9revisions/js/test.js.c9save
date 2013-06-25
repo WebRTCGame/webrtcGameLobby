@@ -1,0 +1,3 @@
+{"ts":1372127216974,"silentsave":true,"restoring":false,"patch":[[]],"length":0}
+{"contributors":[],"silentsave":false,"ts":1372127280576,"patch":[[{"diffs":[[1,"var whateva = function whateva(){\n    console.log(\"hi\");\n    \n    }();"]],"start1":0,"start2":0,"length1":0,"length2":70}]],"length":70,"saved":false}
+{"ts":1372127959143,"patch":[[{"diffs":[[0,"og(\""],[-1,"hi"],[1,"/js/test.js fired"],[0,"\");\n"]],"start1":47,"start2":47,"length1":10,"length2":25}]],"length":85,"saved":false}

@@ -1,0 +1,3 @@
+{"ts":1372104637919,"silentsave":true,"restoring":false,"patch":[[]],"length":0}
+{"contributors":[],"silentsave":false,"ts":1372104987670,"patch":[[{"diffs":[[1,"console.log(\"fuck\");"]],"start1":0,"start2":0,"length1":0,"length2":20}]],"length":20,"saved":false}
+{"contributors":[],"silentsave":false,"ts":1372127953082,"patch":[[{"diffs":[[-1,"console.log(\"fuck\""],[1,"var test2 = function test2(){\n    console.log(\"/test.js fired\");\n}("],[0,");"]],"start1":0,"start2":0,"length1":20,"length2":69}]],"length":69,"saved":false}
