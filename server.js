@@ -26,6 +26,7 @@ var User = function User(nick){
 Object.call(this,nick);
 this.nick = nick;
 this.guid = this.generateGUID();
+this.level = this.generateLevel();
 var _hosting = false;
 Object.defineProperty(this, "hosting", {
     get: function() {
@@ -50,6 +51,21 @@ Object.defineProperty(this, "clientOf", {
     enumerable: true,
     configurable: true
   });
+  var _exp = 0;
+Object.defineProperty(this, "exp", {
+    get: function() {
+      return _exp;
+    },
+    set: function(value) {
+        console.log("exp: " + value);
+      this._exp = value;
+      this.level = this.generateLevel();
+      console.log("Level " + this.level);
+    },
+    enumerable: true,
+    configurable: true
+  });
+  this.exp = 400;
   
 };
 
@@ -67,6 +83,10 @@ function guid() {
 
 return guid();
 
+};
+User.prototype.generateLevel = function generateLevel(varexp){
+    var v1 = Math.sqrt(varexp) - 4;
+    return Math.sqrt(v1) + 1;
 };
 User.prototype.host = function host(){
     if (!this.hosting){
@@ -118,6 +138,9 @@ var httpServer = connect.createServer(connect.static(__dirname)).listen(process.
     -------------------------------------------
 */
 var io = require("socket.io").listen(httpServer);
+
+
+
 io.sockets.on("connection", function(socket) {
 
 
@@ -126,28 +149,23 @@ io.sockets.on("connection", function(socket) {
         -------------------------------------
     */
     socket.on('join', function(nick, callback) {
-
-        // If the nickname isn't in use, join the user
-       // if (clients.indexOf(nick) < 0) {
-
-            // Store the nickname, we'll use it when sending messages
-            //socket.nick = nick;
-            socket.user = new User(nick);
-console.log(JSON.stringify(socket.user));
-            // Add the nickname to the global list
-            //clients.push(nick);
+var avaliable = true;
+for (var i = 0; i < userlist.length; i++) {
+if (userlist[i].nick === nick){
+avaliable = false;
+    }
+}
+if (avaliable){
+socket.user = new User(nick);
+//console.log(JSON.stringify(socket.user));
             userlist.push(socket.user);
-            // Send a message to all clients that a new user has joined
             socket.broadcast.emit("user-joined", socket.user);
-
-            // Callback to the user with a successful flag and the list of clients
-            
+            socket.broadcast.emit('updateusers',userlist);
             callback(true, userlist);
-io.sockets.emit('updateusers',userlist);
-        // If the nickname is already in use, reject the request to join
-       // } else {
-            //callback(false);
-        //}
+} else {
+    callback(false);
+}
+
     });
 
     
@@ -156,14 +174,15 @@ io.sockets.emit('updateusers',userlist);
         --------------------
     */
     socket.on("chat", function(message) {
-        // Check that the client has already joined successfully,
-        // and that the message isn't just an empty string,
-        // then foward the message to all clients
         if (socket.user.nick && message) {
             io.sockets.emit("chat", {sender: socket.user.nick, message: message});
         }
     });
-
+    
+socket.on("hosting",function(usernick){
+    socket.user.host();
+   io.sockets.emit("hosting",usernick); 
+});
 
     /*
         Handle client disconnection
@@ -172,9 +191,17 @@ io.sockets.emit('updateusers',userlist);
     socket.on("disconnect", function() {
         // Check that the user has already joined successfully
         if (socket.user.nick) {
+           
+    for(var i in userlist){
+        if(userlist[i].nick===socket.user.nick){
+            userlist.splice(i,1);
+            break;
+            }
+    }
+
             // Remove the client from the global list
             //clients.splice(clients.indexOf(socket.nick), 1);
-            userlist.splice(userlist.indexOf(socket.user),1);
+            //userlist.splice(userlist.indexOf(socket.user),1);
             
             // Let all the remaining clients know of the disconnect
             io.sockets.emit('updateusers',userlist);

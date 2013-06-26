@@ -1,49 +1,43 @@
-<!doctype html>
+<!doctype html><!--http://bootswatch.com/slate/#-->
 <html>
     <head>
-        <title>Chat</title>
-        <link rel="stylesheet" href="http://yui.yahooapis.com/3.3.0/build/cssreset/reset-min.css">
-        <style type="text/css">
-
-            /* Global */
-            html, body { height: 100%; }
-            body { font-family: sans-serif; }
-
-            /* Join form */
-            #join-form { padding: 1em; }
-            #nick-input { margin-bottom: 1em; }
-            #nick-error { display: none; color: #d00; }
-
-            /* Chat */
-            #chat { display: none; height: 100%; }
-            #main { width: 80%; height: 100%; float: left; }
-            #messages { height: 80%; width: 80%; overflow-y: scroll; background-color: #eee; }
-            #message-form { height: 10%; width: 80%; }
-            #message-input { width: 100%; height: 100%; padding: 0 1em; border: none; outline: none; }
-            #users { width: 20%; height: 100%; float: left; background-color: #ddd; }
-            #users.li {background-color: #eee;}
-            .sender { font-weight: bold; }
-            .system-message { font-style: italic; }
-
-        </style>
+    <meta charset="utf-8">
+        <title>WebRTC Game Lobby</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <!--<link rel="stylesheet" href="http://yui.yahooapis.com/3.3.0/build/cssreset/reset-min.css">-->
+        
+        <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
+        <link href="css/bootstrap-responsive.min.css" rel="stylesheet">
+        <link href="css/font-awesome.min.css" rel="stylesheet">
+        <link href="css/bootswatch.css" rel="stylesheet">
+        
+       
     </head>
 
-    <body>
+    <body class="preview" id="top" data-spy="scroll" data-target=".subnav" data-offset="80">
 <script src="handlebars.js"></script>
-        <form id="join-form">
+<div class="container">
+        
+        
+        <form id="join-form" class="form-horizontal well">
+        <legend>Join Form</legend>
             <label for="nick-input">Choose a nickname:</label><br />
             <input id="nick-input" />
             <div id="nick-error">That nickname is already in use, please choose something different.</div>
         </form>
+        
+        <ul id="users" class="well" style="padding: 8px 0;"></ul>
 
-        <div id="chat">
+        <div id="chat" class="well" style="padding: 8px 0;"></div>
+        
             <div id="main">
                 <ul id="messages"></ul>
-                <form id="message-form">
-                    <input id="message-input" />
+                <form id="message-form" class="well form-search">
+                    <input id="message-input" class="input-medium search-query">
                 </form>
             </div>
-            <ul id="users"></ul>
+            
         </div>
 <div id="hadletest">
     
@@ -51,7 +45,7 @@
 
 
         <script id="userTemplate" type="text/x-jquery-tmpl">
-       // console.log(${user});
+       
             <li id="user-${user}">${user.nick}</li>
             
             <input type="button" name="host" value="Hosting: ${user.hosting}" id="button-${user}" onClick='minusClick(${user.nick});'>-</button>
@@ -66,7 +60,9 @@
             <li class="system-message">${message}</li>
         </script>
 
-        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+        <!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>-->
+         <script src="http://code.jquery.com/jquery.js"></script>
+         <script src="js/bootstrap.min.js"></script>
         <script src="http://ajax.microsoft.com/ajax/jquery.templates/beta1/jquery.tmpl.min.js"></script>
         <script src="/socket.io/socket.io.js"></script>
        
@@ -80,159 +76,244 @@ Today is {{weekDay}}
 {{/each}}
 </script>
 
+<!--[{"nick":"aaa","guid":"7dd223a2-73f3-e87a-cfa6-86458781c454","hosting":false,"clientOf":false}] -->
+<script id="TemplateUser" type="text/x-handlebars-template">
+         <div class="navbar">
+    <div class="navbar-inner">
+      <div class="container" style="width: auto;">
+        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </a>
+        <a class="brand" href="#">{{nick}}</a>
+        <div class="nav-collapse">
+          <ul class="nav">
+            <li class="active"><a id="button{{nick}}" href="#">Home</a></li>
+            <li><a href="#" id="buttonHost{{nick}}">Host</a></li>
+            <li><a href="#" id="buttonJoin{{nick}}">Join</a></li>
+            <li><a href="#">Exp:{{exp}}</a></li>
+            <li><a href="#">Lvl:{{level}}</a></li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Game <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="#">Game 1</a></li>
+                <li><a href="#">Game 2</a></li>
+                <li><a href="#">Game 3</a></li>
+                <li class="divider"></li>
+                <li><a href="#">Separated link</a></li>
+              </ul>
+            </li>
+          </ul>
+          <form class="navbar-search pull-left" action="">
+            <input type="text" class="search-query span2" placeholder="Search">
+          </form>
+          <ul class="nav pull-right">
+            <li><a href="#">Link</a></li>
+            <li class="divider-vertical"></li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="#">Action</a></li>
+                <li><a href="#">Another action</a></li>
+                <li><a href="#">Something else here</a></li>
+                <li class="divider"></li>
+                <li><a href="#">Separated link</a></li>
+              </ul>
+            </li>
+          </ul>
+        </div><!-- /.nav-collapse -->
+      </div>
+    </div><!-- /navbar-inner -->
+ 
+        </script>
+
+
  <script id="aaa" type="text/x-handlebars-template">
        <li class="system-message">{{ message }}</li>
 </script>
 
-        <script>
-var theUsers;
-function minusClick(id){
+<script id="TemplateChatMessage" type="text/x-handlebars-template">
+            <li><span class="sender">{{sender}}</span>: {{message}}</li>
+        </script>
+        
+        <script>var theUsers;
+
+function minusClick(id) {
     //alert(id.nick.toString());
     console.log(id);
-    };
-    
-var theData = [{headerTitle:"a", weekDay:"aa"},{headerTitle:"b", weekDay:"bb"},{headerTitle:"c", weekDay:"cc"}];
-var theTemplateScript = $("#header").html();
-var theTemplate = Handlebars.compile (theTemplateScript);
+};
+
+
 
 var t1 = $("#aaa").html();
 console.log(t1);
-var t2 = Handlebars.compile (t1);
+var t2 = Handlebars.compile(t1);
 
-            $(document).ready(function() {
-                
+var chatmessagehtml = $("#TemplateChatMessage").html();
+var chatMessage = Handlebars.compile(chatmessagehtml);
 
-$(document.body).append (theTemplate (theData));
-
-
-
-                // Give focus to the nickname input when the page loads
-                $("#nick-input").focus();
-
-                // Create a connection to the server
-                var socket = io.connect(document.URL);
-
-                /*
-                    Handle submission of the join form, try to join the chat-room
-                */
-                $("#join-form").submit(function(ev) {
-
-                    // Prevent the browser from submitting the form via HTTP
-                    ev.preventDefault();
-
-                    // Check that a nickname has been entered
-                    var nick = $("#nick-input").val();
-                    if (nick) {
-
-                        // Send a request to join the chat-room
-                        socket.emit("join", nick, function(successful, users) {
-                           
-                           if (successful) {
-
-                                // Hide the join form and show the main chat interface
-                                $("#join-form").hide();
-                                $("#chat").show();
-
-                                // Display a welcome message
-                                var message = "Welcome, " + nick;
-                                var messagedata = {message:message};
-                                //$("#systemMessageTemplate").tmpl({message: message}).appendTo("#messages");
-                                $("#messages").append("--");
-                                $("#messages").append (t2 (messagedata));
-                                $("#messages").append("--");
-                                // Display the list of connected users on the page
-                                console.log(JSON.stringify(users));
-                                theUsers = users;
-                                $.each(users, function(i, user) {
-                                    console.log(JSON.stringify(user));
-                                    $("#userTemplate").tmpl({user: user}).appendTo("#users");
-                                });
-
-                                // Give focus to the message input so the user can start entering a message
-                                $("#message-input").focus();
+var userlisthtml = $("#TemplateUser").html();
+var userlistcompiled = Handlebars.compile(userlisthtml);
 
 
-                                /*
+
+$(document).ready(function() {
+
+
+    $("#nick-input").focus();
+
+
+    var socket = io.connect(document.URL);
+
+
+    $("#join-form").submit(function(ev) {
+
+        // Prevent the browser from submitting the form via HTTP
+        ev.preventDefault();
+
+        // Check that a nickname has been entered
+        var nick = $("#nick-input").val();
+        if (nick) {
+
+            // Send a request to join the chat-room
+            socket.emit("join", nick, function(successful, users) {
+
+                if (successful) {
+
+                    // Hide the join form and show the main chat interface
+                    $("#join-form").hide();
+                    $("#chat").show();
+
+                    // Display a welcome message
+                    var message = "Welcome, " + nick;
+                    var messagedata = {
+                        message: message
+                    };
+                    //$("#systemMessageTemplate").tmpl({message: message}).appendTo("#messages");
+                    $("#messages").append("--");
+                    $("#messages").append(t2(messagedata));
+                    $("#messages").append("--");
+                    // Display the list of connected users on the page
+                    console.log(JSON.stringify(users));
+                    theUsers = users;
+                    
+                    $.each(users, function(i, user) {
+                        socket.user = user;
+                        console.log(JSON.stringify(socket.user));
+                       /*
+                       $("#userTemplate").tmpl({
+                            user: user
+                        }).appendTo("#users");
+                        */
+                        $("#users").append(userlistcompiled(user));
+                        $("#button"+user.nick).on("click",function(event){
+    alert($(this).text());
+});
+                    });
+                    
+                    // $("#users").remove(".userlistitem");
+                        //$("#users").append(userlistcompiled(theUsers));
+                    // Give focus to the message input so the user can start entering a message
+                    $("#message-input").focus();
+
+
+                    /*
                                     Send chat messages
                                     ------------------
                                 */
-                                $("#message-form").submit(function(ev) {
-                                    // Prevent the browser from submitting the form via HTTP
-                                    ev.preventDefault();
+                    $("#message-form").submit(function(ev) {
 
-                                    // Send the message to the server
-                                    socket.emit("chat", $("#message-input").val());
-
-                                    // Clear the text-box
-                                    $("#message-input").val("");
-                                });
+                        ev.preventDefault();
 
 
-                                /*
+                        socket.emit("chat", $("#message-input").val());
+
+
+                        $("#message-input").val("");
+                    });
+$("#buttonHost"+socket.user.nick).on("click",function(event){
+     alert(socket.user.nick+$(this).text());
+     socket.emit("hosting",socket.user.nick);
+});
+
+socket.on("hosting",function(usernick){
+   //alert(usernick + " is hosting"); 
+    $("#messages").append(t2({message: usernick + " is hosting"}));
+    $("#buttonHost"+usernick).css( "color", "red" );
+});
+                    /*
                                     Handle chat messages
                                     --------------------
                                 */
-                                socket.on("chat", function(message) {
-
-                                    // Inject the message into the DOM
-                                    $("#chatMessageTemplate").tmpl(message).appendTo("#messages");
-
-                                    // Auto-scroll the message pane
-                                    $("#messages").scrollTop($("#messages").prop("scrollHeight") - $("#messages").height());
-
-                                });
+                    socket.on("chat", function(message) {
+                        $("#messages").append(chatMessage(message));
+                        $("#messages").scrollTop($("#messages").prop("scrollHeight") - $("#messages").height());
+                    });
 
 
-                                /*
+                    /*
                                     Handle users joining
                                     --------------------
                                 */
-                                socket.on("user-joined", function(user) {
-console.log(JSON.stringify(user));
-                                    // Add to the on-page list of users
-                                    $("#userTemplate").tmpl({user: user}).appendTo("#users");
+                    socket.on("user-joined", function(user) {
+                        console.log(JSON.stringify(user));
+                        // Add to the on-page list of users
+                       /*
+                       $("#userTemplate").tmpl({
+                            user: user
+                        }).appendTo("#users");
+                        */
+$("#users").append(userlistcompiled(user));
+                        // Display a message in the main chat stream
+                        var message = user.nick + " joined";
+                        //$("#systemMessageTemplate").tmpl({message: message}).appendTo("#messages");
+                        $("#messages").append(chatMessage({
+                            message: message
+                        }));
+                        // Auto-scroll the message pane
+                        $("#messages").scrollTop($("#messages").prop("scrollHeight") - $("#messages").height());
+$("#button"+user.nick).on("click",function(event){
+    alert($(this).text());
+});
+                    });
 
-                                    // Display a message in the main chat stream
-                                    var message = user.nick + " joined";
-                                    $("#systemMessageTemplate").tmpl({message: message}).appendTo("#messages");
 
-                                    // Auto-scroll the message pane
-                                    $("#messages").scrollTop($("#messages").prop("scrollHeight") - $("#messages").height());
-
-                                });
-
-
-                                /*
+                    /*
                                     Handle users leaving
                                     --------------------
                                 */
-                                socket.on("user-left", function(user) {
+                    socket.on("user-left", function(user) {
 
-                                    // Remove from the on-page list of users
-                                    $("#user-" + user.nick).remove();
+                        // Remove from the on-page list of users
+                        $("#user-" + user.nick).remove();
 
-                                    // Display a message in the main chat stream
-                                    var message = user.nick + " left";
-                                    $("#systemMessageTemplate").tmpl({message: message}).appendTo("#messages");
+                        // Display a message in the main chat stream
+                        var message = user.nick + " left";
+                        $("#systemMessageTemplate").tmpl({
+                            message: message
+                        }).appendTo("#messages");
 
-                                    // Auto-scroll the message pane
-                                    $("#messages").scrollTop($("#messages").prop("scrollHeight") - $("#messages").height());
+                        // Auto-scroll the message pane
+                        $("#messages").scrollTop($("#messages").prop("scrollHeight") - $("#messages").height());
 
-                                });
-                                socket.on("updateusers",function(listofusers){
-                                    theUsers = listofusers;
-                                    console.log(JSON.stringify(theUsers));
-                                });
+                    });
+                    socket.on("updateusers", function(listofusers) {
+                        theUsers = listofusers;
+                       // console.log(JSON.stringify(theUsers));
+                        //$("#users").remove(".userlistitem");
+                       // $("#users").append(userlistcompiled(theUsers));
+                    });
 
-                            // If the request to join was rejected, show an error message
-                            } else {
-                                $("#nick-error").show();
-                            }
-                        });
-                    }
-                });                
-                
+                    // If the request to join was rejected, show an error message
+                } else {
+                    $("#nick-error").show();
+                }
             });
+        }
+    });
+
+});
         </script>
         <script src="/js/test.js"></script>
         <script src="test.js"></script>
