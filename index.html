@@ -164,7 +164,13 @@ var chatMessage = Handlebars.compile(chatmessagehtml);
 var userlisthtml = $("#TemplateUser").html();
 var userlistcompiled = Handlebars.compile(userlisthtml);
 
-
+var userByNick = function userByNick(nick){
+    $.each(theUsers, function(i, user) {
+                        if (user.nick === nick){
+                            return user
+                            }
+                    });
+};
 
 $(document).ready(function() {
 
@@ -173,7 +179,7 @@ $(document).ready(function() {
 
 
     var socket = io.connect(document.URL);
-
+console.log(document.URL);
 
     $("#join-form").submit(function(ev) {
 
@@ -218,6 +224,9 @@ $(document).ready(function() {
                             $("#buttonIgnore"+user.nick).on("click",function(event){
                             alert(user.nick + $(this).text());
                         });
+                         $("#buttonJoin"+user.nick).on("click",function(event){
+                            alert(user.nick + $(this).text());
+                        });
                        // }
                         
                     });
@@ -234,9 +243,18 @@ $(document).ready(function() {
 
                         $("#message-input").val("");
                     });
+                    
+                    
 $("#buttonHost"+socket.user.nick).on("click",function(event){
      alert(socket.user.nick+$(this).text());
      socket.emit("hosting",socket.user.nick);
+     var lobbyDocURL = document.URL;
+     var mode = "host";
+     var guid = socket.user.guid;
+     var username = socket.user.nick;
+     var urlEndString = "?i=main&mode=" + mode + "&guid=" + guid + "&username=" + username + "&lobbyDocURL=" + lobbyDocURL;
+     //file:///E:/peer/WebRTCGame/index.htm?i=main&mode=host&guid=de8d49b78a85a322c4155015fdce22c4&username=testusername&lobbyDocURL=xxx
+     window.open('/WebRTCGame/index.htm' + urlEndString, '_blank', 'toolbar=0,location=0,menubar=0');
 });
 
 socket.on("hosting",function(usernick){
@@ -269,9 +287,13 @@ socket.on("hosting",function(usernick){
                         }));
                         // Auto-scroll the message pane
                         $("#messages").scrollTop($("#messages").prop("scrollHeight") - $("#messages").height());
+                        
 $("#button"+user.nick).on("click",function(event){
     alert($(this).text());
 });
+$("#buttonJoin"+user.nick).on("click",function(event){
+                            alert(user.nick + $(this).text());
+                        });
                     });
 
 
