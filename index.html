@@ -94,6 +94,7 @@ Today is {{weekDay}}
             <li><a href="#" id="buttonJoin{{nick}}">Join</a></li>
             <li><a href="#">Exp:{{exp}}</a></li>
             <li><a href="#">Lvl:{{level}}</a></li>
+            <li><a href="#" id="buttonIgnore{{nick}}">Ignore</a></li>
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">Game <b class="caret"></b></a>
               <ul class="dropdown-menu">
@@ -137,8 +138,15 @@ Today is {{weekDay}}
             <li><span class="sender">{{sender}}</span>: {{message}}</li>
         </script>
         
-        <script>var theUsers;
-
+        
+        
+        
+        
+        <script>
+        
+        var theUsers;
+        var blockedUsers = [];
+        
 function minusClick(id) {
     //alert(id.nick.toString());
     console.log(id);
@@ -199,29 +207,23 @@ $(document).ready(function() {
                     theUsers = users;
                     
                     $.each(users, function(i, user) {
-                        socket.user = user;
-                        console.log(JSON.stringify(socket.user));
-                       /*
-                       $("#userTemplate").tmpl({
-                            user: user
-                        }).appendTo("#users");
-                        */
+                        if (user.nick === nick){
+                            socket.user = user;
+                            }
                         $("#users").append(userlistcompiled(user));
                         $("#button"+user.nick).on("click",function(event){
-    alert($(this).text());
-});
+                            alert($(this).text());
+                        });
+                        //if (!user.nick === nick){
+                            $("#buttonIgnore"+user.nick).on("click",function(event){
+                            alert(user.nick + $(this).text());
+                        });
+                       // }
+                        
                     });
-                    
-                    // $("#users").remove(".userlistitem");
-                        //$("#users").append(userlistcompiled(theUsers));
-                    // Give focus to the message input so the user can start entering a message
+
                     $("#message-input").focus();
 
-
-                    /*
-                                    Send chat messages
-                                    ------------------
-                                */
                     $("#message-form").submit(function(ev) {
 
                         ev.preventDefault();
@@ -257,17 +259,11 @@ socket.on("hosting",function(usernick){
                                     --------------------
                                 */
                     socket.on("user-joined", function(user) {
-                        console.log(JSON.stringify(user));
-                        // Add to the on-page list of users
-                       /*
-                       $("#userTemplate").tmpl({
-                            user: user
-                        }).appendTo("#users");
-                        */
-$("#users").append(userlistcompiled(user));
+                     
+                    $("#users").append(userlistcompiled(user));
                         // Display a message in the main chat stream
                         var message = user.nick + " joined";
-                        //$("#systemMessageTemplate").tmpl({message: message}).appendTo("#messages");
+                        
                         $("#messages").append(chatMessage({
                             message: message
                         }));
