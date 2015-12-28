@@ -16,33 +16,58 @@
     </head>
 
     <body class="preview" id="top" data-spy="scroll" data-target=".subnav" data-offset="80">
+
+
 <script src="handlebars.js"></script>
+
+<script src="knockout-2.2.1.js"></script>
+
+
 <div class="container">
-        
-        
-        <form id="join-form" class="form-horizontal well">
+    <form id="join-form" class="form-horizontal well">
         <legend>Join Form</legend>
-            <label for="nick-input">Choose a nickname:</label><br />
-            <input id="nick-input" />
-            <div id="nick-error">That nickname is already in use, please choose something different.</div>
+        <label for="nick-input">Choose a nickname:</label>
+        <br />
+        <input id="nick-input" />
+        <div id="nick-error">That nickname is already in use, please choose something different.</div>
+    </form>
+    <ul id="users" class="well" style="padding: 8px 0;"></ul>
+    <div id="chat" class="well" style="padding: 8px 0;"></div>
+    <div id="main">
+        <ul id="messages"></ul>
+        <form id="message-form" class="well form-search">
+            <input id="message-input" class="input-medium search-query">
         </form>
-        
-        <ul id="users" class="well" style="padding: 8px 0;"></ul>
-
-        <div id="chat" class="well" style="padding: 8px 0;"></div>
-        
-            <div id="main">
-                <ul id="messages"></ul>
-                <form id="message-form" class="well form-search">
-                    <input id="message-input" class="input-medium search-query">
-                </form>
-            </div>
-            
-        </div>
-<div id="hadletest">
-    
+    </div>
 </div>
+<div id="hadletest"></div>
 
+
+<h2>Your seat reservations (<span data-bind="text: seats().length"></span>)</h2>
+
+<table>
+    <thead><tr>
+        <th>Passenger name</th><th>Meal</th><th>Surcharge</th><th></th>
+    </tr></thead>
+    <tbody data-bind="foreach: seats">
+        <tr>
+            <td><input data-bind="value: name" /></td>
+            <td><input data-bind="value: meal" /></td>
+            
+          
+            
+        </tr>    
+    </tbody>
+     <tbody data-bind="foreach: chatMessages">
+        <tr>
+            <td><input data-bind="value: name" /></td>
+            <td><input data-bind="value: message" /></td>
+            
+          
+            
+        </tr>    
+    </tbody>
+</table>
 
         <script id="userTemplate" type="text/x-jquery-tmpl">
        
@@ -144,194 +169,233 @@ Today is {{weekDay}}
         
         <script>
         
+        
+        
         var theUsers;
         var blockedUsers = [];
         
-function minusClick(id) {
-    //alert(id.nick.toString());
-    console.log(id);
-};
-
-
-
-var t1 = $("#aaa").html();
-console.log(t1);
-var t2 = Handlebars.compile(t1);
-
-var chatmessagehtml = $("#TemplateChatMessage").html();
-var chatMessage = Handlebars.compile(chatmessagehtml);
-
-var userlisthtml = $("#TemplateUser").html();
-var userlistcompiled = Handlebars.compile(userlisthtml);
-
-var userByNick = function userByNick(nick){
-    $.each(theUsers, function(i, user) {
-                        if (user.nick === nick){
-                            return user
-                            }
-                    });
-};
-
-$(document).ready(function() {
-
-
-    $("#nick-input").focus();
-
-
-    var socket = io.connect(document.URL);
-console.log(document.URL);
-
-    $("#join-form").submit(function(ev) {
-
-        // Prevent the browser from submitting the form via HTTP
-        ev.preventDefault();
-
-        // Check that a nickname has been entered
-        var nick = $("#nick-input").val();
-        if (nick) {
-
-            // Send a request to join the chat-room
-            socket.emit("join", nick, function(successful, users) {
-
-                if (successful) {
-
-                    // Hide the join form and show the main chat interface
-                    $("#join-form").hide();
-                    $("#chat").show();
-
-                    // Display a welcome message
-                    var message = "Welcome, " + nick;
-                    var messagedata = {
-                        message: message
-                    };
-                    //$("#systemMessageTemplate").tmpl({message: message}).appendTo("#messages");
-                    $("#messages").append("--");
-                    $("#messages").append(t2(messagedata));
-                    $("#messages").append("--");
-                    // Display the list of connected users on the page
-                    console.log(JSON.stringify(users));
-                    theUsers = users;
-                    
-                    $.each(users, function(i, user) {
-                        if (user.nick === nick){
-                            socket.user = user;
-                            }
-                        $("#users").append(userlistcompiled(user));
-                        $("#button"+user.nick).on("click",function(event){
-                            alert($(this).text());
-                        });
-                        //if (!user.nick === nick){
-                            $("#buttonIgnore"+user.nick).on("click",function(event){
-                            alert(user.nick + $(this).text());
-                        });
-                         $("#buttonJoin"+user.nick).on("click",function(event){
-                            alert(user.nick + $(this).text());
-                        });
-                       // }
-                        
-                    });
-
-                    $("#message-input").focus();
-
-                    $("#message-form").submit(function(ev) {
-
-                        ev.preventDefault();
-
-
-                        socket.emit("chat", $("#message-input").val());
-
-
-                        $("#message-input").val("");
-                    });
-                    
-                    
-$("#buttonHost"+socket.user.nick).on("click",function(event){
-     alert(socket.user.nick+$(this).text());
-     socket.emit("hosting",socket.user.nick);
-     var lobbyDocURL = document.URL;
-     var mode = "host";
-     var guid = socket.user.guid;
-     var username = socket.user.nick;
-     var urlEndString = "?i=main&mode=" + mode + "&guid=" + guid + "&username=" + username + "&lobbyDocURL=" + lobbyDocURL;
-     //file:///E:/peer/WebRTCGame/index.htm?i=main&mode=host&guid=de8d49b78a85a322c4155015fdce22c4&username=testusername&lobbyDocURL=xxx
-     window.open('/WebRTCGame/index.htm' + urlEndString, '_blank', 'toolbar=0,location=0,menubar=0');
-});
-
-socket.on("hosting",function(usernick){
-   //alert(usernick + " is hosting"); 
-    $("#messages").append(t2({message: usernick + " is hosting"}));
-    $("#buttonHost"+usernick).css( "color", "red" );
-});
-                    /*
-                                    Handle chat messages
-                                    --------------------
-                                */
-                    socket.on("chat", function(message) {
-                        $("#messages").append(chatMessage(message));
-                        $("#messages").scrollTop($("#messages").prop("scrollHeight") - $("#messages").height());
-                    });
-
-
-                    /*
-                                    Handle users joining
-                                    --------------------
-                                */
-                    socket.on("user-joined", function(user) {
-                     
-                    $("#users").append(userlistcompiled(user));
-                        // Display a message in the main chat stream
-                        var message = user.nick + " joined";
-                        
-                        $("#messages").append(chatMessage({
-                            message: message
-                        }));
-                        // Auto-scroll the message pane
-                        $("#messages").scrollTop($("#messages").prop("scrollHeight") - $("#messages").height());
-                        
-$("#button"+user.nick).on("click",function(event){
-    alert($(this).text());
-});
-$("#buttonJoin"+user.nick).on("click",function(event){
-                            alert(user.nick + $(this).text());
-                        });
-                    });
-
-
-                    /*
-                                    Handle users leaving
-                                    --------------------
-                                */
-                    socket.on("user-left", function(user) {
-
-                        // Remove from the on-page list of users
-                        $("#user-" + user.nick).remove();
-
-                        // Display a message in the main chat stream
-                        var message = user.nick + " left";
-                        $("#systemMessageTemplate").tmpl({
-                            message: message
-                        }).appendTo("#messages");
-
-                        // Auto-scroll the message pane
-                        $("#messages").scrollTop($("#messages").prop("scrollHeight") - $("#messages").height());
-
-                    });
-                    socket.on("updateusers", function(listofusers) {
-                        theUsers = listofusers;
-                       // console.log(JSON.stringify(theUsers));
-                        //$("#users").remove(".userlistitem");
-                       // $("#users").append(userlistcompiled(theUsers));
-                    });
-
-                    // If the request to join was rejected, show an error message
-                } else {
-                    $("#nick-error").show();
+        function minusClick(id) {
+            //alert(id.nick.toString());
+            console.log(id);
+        };
+        var t1 = $("#aaa").html();
+        console.log(t1);
+        var t2 = Handlebars.compile(t1);
+        
+        var chatmessagehtml = $("#TemplateChatMessage").html();
+        var chatMessage = Handlebars.compile(chatmessagehtml);
+        
+        var userlisthtml = $("#TemplateUser").html();
+        var userlistcompiled = Handlebars.compile(userlisthtml);
+        
+        var userByNick = function userByNick(nick) {
+            $.each(theUsers, function(i, user) {
+                if (user.nick === nick) {
+                    return user
                 }
             });
-        }
-    });
-
-});
+        };
+        $(document).ready(function() {
+        function SeatReservation(name, initialMeal) {
+            var self = this;
+            self.name = name;
+            self.meal = ko.observable(initialMeal);
+        };
+ function chatMessage(sender, message) {
+            var self = this;
+            self.name = ko.observable(sender);
+            self.message = ko.observable(message);
+        };
+        function LobbyViewModel() {
+            var self = this;
+            self.seats = ko.observableArray([
+            new SeatReservation("Steve", "A"),
+            new SeatReservation("Bert", "B")
+            ]);
+            self.chatMessages = ko.observableArray([
+            new chatMessage("nick1"," hi there"),
+            new chatMessage("nick2"," ho there")
+                ]);
+               self.addMessage = function(_from,_message) {
+        self.chatMessages.push(new chatMessage(_from, _message));
+    } 
+        };
+        var theViewModel = new LobbyViewModel();
+        ko.applyBindings(theViewModel);
+        theViewModel.addMessage("frank","fuck off");
+        theViewModel.addMessage("uyguyg","fuck off");
+            $("#nick-input").focus();
+        
+        
+            var socket = io.connect(document.URL);
+            console.log(document.URL);
+        
+            $("#join-form").submit(function(ev) {
+        
+                // Prevent the browser from submitting the form via HTTP
+                ev.preventDefault();
+        
+                // Check that a nickname has been entered
+                var nick = $("#nick-input").val();
+                if (nick) {
+        
+                    // Send a request to join the chat-room
+                    socket.emit("join", nick, function(successful, users) {
+        
+                        if (successful) {
+        
+                            // Hide the join form and show the main chat interface
+                            $("#join-form").hide();
+                            $("#chat").show();
+        
+                            // Display a welcome message
+                            theViewModel.addMessage("system: ","Welcome " + nick);
+                            //var message = "Welcome, " + nick;
+                            //var messagedata = {
+                            //    message: message
+                            //};
+                            //$("#systemMessageTemplate").tmpl({message: message}).appendTo("#messages");
+                            //$("#messages").append("--");
+                           // $("#messages").append(t2(messagedata));
+                            //$("#messages").append("--");
+                            // Display the list of connected users on the page
+                            console.log(JSON.stringify(users));
+                            theUsers = users;
+        
+                            $.each(users, function(i, user) {
+                                if (user.nick === nick) {
+                                    socket.user = user;
+                                }
+                                $("#users").append(userlistcompiled(user));
+                                $("#button" + user.nick).on("click", function(event) {
+                                    alert($(this).text());
+                                });
+                                //if (!user.nick === nick){
+                                $("#buttonIgnore" + user.nick).on("click", function(event) {
+                                    alert(user.nick + $(this).text());
+                                });
+                                $("#buttonJoin" + user.nick).on("click", function(event) {
+                                    socket.emit("userJoinedGame", {
+                                        usernick: socket.user.nick,
+                                        joinedTo: user.nick
+                                    });
+                                    alert(user.nick + user.hosting + $(this).text());
+                                });
+                                // }
+        
+                            });
+        
+                            $("#message-input").focus();
+        
+                            $("#message-form").submit(function(ev) {
+        
+                                ev.preventDefault();
+        
+        
+                                socket.emit("chat", $("#message-input").val());
+        
+        
+                                $("#message-input").val("");
+                            });
+        
+        
+                            $("#buttonHost" + socket.user.nick).on("click", function(event) {
+                                //alert(socket.user.nick+$(this).text());
+                                socket.emit("hosting", socket.user.nick);
+        
+                                var lobbyDocURL = document.URL;
+                                var mode = "host";
+                                var guid = socket.user.guid;
+                                var username = socket.user.nick;
+                                var urlEndString = "?i=main&mode=" + mode + "&guid=" + guid + "&username=" + username + "&lobbyDocURL=" + lobbyDocURL;
+                                //file:///E:/peer/WebRTCGame/index.htm?i=main&mode=host&guid=de8d49b78a85a322c4155015fdce22c4&username=testusername&lobbyDocURL=xxx
+                                window.open('/WebRTCGame/index.htm' + urlEndString, '_blank', 'toolbar=0,location=0,menubar=0');
+                            });
+                            socket.on("userJoinGameReceived", function(userjoinednick, userhostnick) {
+                                $("#messages").append(t2({
+                                    message: userjoinednick + " has joined " + userhostnick + " game"
+                                }));
+                            });
+                            socket.on("hosting", function(usernick) {
+                                //alert(usernick + " is hosting"); 
+                                $("#messages").append(t2({
+                                    message: usernick + " is hosting"
+                                }));
+                                $("#buttonHost" + usernick).css("color", "red");
+                            });
+                            /*
+                                            Handle chat messages
+                                            --------------------
+                                        */
+                            socket.on("chat", function(message) {
+                                theViewModel.addMessage(message.sender,message.message);
+                                $("#messages").append(chatMessage(message));
+                                $("#messages").scrollTop($("#messages").prop("scrollHeight") - $("#messages").height());
+                            });
+        
+        
+                            /*
+                                            Handle users joining
+                                            --------------------
+                                        */
+                            socket.on("user-joined", function(user) {
+        
+                                $("#users").append(userlistcompiled(user));
+                                // Display a message in the main chat stream
+                                var message = user.nick + " joined";
+        
+                                $("#messages").append(chatMessage({
+                                    message: message
+                                }));
+                               // theViewModel.addMessage(user.nick," joined");
+                                // Auto-scroll the message pane
+                                $("#messages").scrollTop($("#messages").prop("scrollHeight") - $("#messages").height());
+        
+                                $("#button" + user.nick).on("click", function(event) {
+                                    alert($(this).text());
+                                });
+                                $("#buttonJoin" + user.nick).on("click", function(event) {
+                                    alert(user.nick + user.hosting + $(this).text());
+                                });
+                            });
+        
+        
+                            /*
+                                            Handle users leaving
+                                            --------------------
+                                        */
+                            socket.on("user-left", function(user) {
+        
+                                // Remove from the on-page list of users
+                                $("#user-" + user.nick).remove();
+        //theViewModel.addMessage(user.nick," left");
+                                // Display a message in the main chat stream
+                                var message = user.nick + " left";
+                                $("#systemMessageTemplate").tmpl({
+                                    message: message
+                                }).appendTo("#messages");
+        
+                                // Auto-scroll the message pane
+                                $("#messages").scrollTop($("#messages").prop("scrollHeight") - $("#messages").height());
+        
+                            });
+                            socket.on("updateusers", function(listofusers) {
+                                theUsers = listofusers;
+                                // console.log(JSON.stringify(theUsers));
+                                //$("#users").remove(".userlistitem");
+                                // $("#users").append(userlistcompiled(theUsers));
+                            });
+        
+                            // If the request to join was rejected, show an error message
+                        }
+                        else {
+                            $("#nick-error").show();
+                        }
+                    });
+                }
+            });
+        
+        });
         </script>
         <script src="/js/test.js"></script>
         <script src="test.js"></script>
